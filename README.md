@@ -5,7 +5,12 @@ against the architecture we actually use in `android-mx`: multi-module features,
 components, Compose on Android, native SwiftUI on iOS.
 
 Versions mirror `android-mx` so conclusions transfer: Kotlin 2.3.21, Compose Multiplatform 1.9.3,
-Decompose 3.2.2, Metro 1.4.0.
+Decompose 3.2.2.
+
+Metro is pinned to **1.1.1**, not the newest 1.4.0: from 1.2.0 on, Metro's Kotlin/Native runtime
+klib is built with Kotlin 2.4.0, and a 2.3.21 Kotlin/Native compiler cannot read it. Android builds
+fine on 1.4.0 — the limit is iOS only. The annotation surface of 1.1.1 is identical to 1.4.0 for
+everything this experiment uses. Details in [PLAN.md](PLAN.md#7-журнал-находок).
 
 See [PLAN.md](PLAN.md) for the full experiment plan and the P1–P5 stages.
 
