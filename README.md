@@ -81,8 +81,7 @@ Dependency rules, deliberately the same as `android-mx`:
   `Set<AnalyticsSink>` contributed from `:core:data` and `:feature:summary`.
 - **P3 — done.** Decompose Root with the full four-screen flow, every parameter direction,
   promo `childSlot` with its own nested graph, per-screen graph extensions with `@Provides` inputs.
-- P4 — iOS: framework export, SwiftUI views, typed graph accessors.
 - **P5 — done.** Test graph with `replaces`, incremental-build measurements, a reproducible Metro
   intrinsic bug, and a green Kotlin 2.4.10 + Metro 1.4.0 build on `experiment/kotlin-2.4`.
-- P4 — iOS SwiftUI app: not built. The framework compiles and links and the typed accessors exist,
-  but there is no Xcode project yet.
+- **P4 — not done.** The iOS framework compiles and links and the typed accessors exist, but there
+  is no Xcode project or SwiftUI layer yet.
