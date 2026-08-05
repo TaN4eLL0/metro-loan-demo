@@ -16,17 +16,37 @@ See [PLAN.md](PLAN.md) for the full experiment plan and the P1–P5 stages.
 
 ## Where to look for Metro
 
+Read these six files in order and you have seen the whole DI story.
+
 | File | What it demonstrates |
 | --- | --- |
-| [AppGraph.kt](shared/src/commonMain/kotlin/dev/metrodemo/shared/di/AppGraph.kt) | The one app-wide graph. Note it lists no modules and no bindings. |
+| [AppGraph.kt](shared/src/commonMain/kotlin/dev/metrodemo/shared/di/AppGraph.kt) | The one app-wide graph. It lists no modules, no bindings and no screen graphs. |
 | [FakeProductsRepository.kt](core/data/src/commonMain/kotlin/dev/metrodemo/core/data/FakeProductsRepository.kt) | `@ContributesBinding` — reaches `AppGraph` across a module boundary without being named anywhere. |
-| [MoneyFormatter.kt](core/common/src/commonMain/kotlin/dev/metrodemo/core/common/format/MoneyFormatter.kt) | `@SingleIn(AppScope::class)` scoped binding. |
-| [CalculateTotalUseCase.kt](core/domain/src/commonMain/kotlin/dev/metrodemo/core/domain/CalculateTotalUseCase.kt) | Plain unscoped `@Inject` binding. |
-| [MainActivity.kt](androidApp/src/main/kotlin/dev/metrodemo/android/MainActivity.kt) | `createGraphFactory` + `@Provides` runtime input. |
-| [ScreenScope.kt](core/common/src/commonMain/kotlin/dev/metrodemo/core/common/di/ScreenScope.kt) | Scope marker for the per-screen graph extensions added in P3. |
+| [StorageBindings.kt](core/data/src/commonMain/kotlin/dev/metrodemo/core/data/storage/StorageBindings.kt) | `@BindingContainer` with two `@Named` implementations of one interface. |
+| [ProductListGraph.kt](feature/product-list/components/src/commonMain/kotlin/dev/metrodemo/feature/productlist/ProductListGraph.kt) | The per-screen graph: `@GraphExtension` + `@ContributesTo(AppScope)` on its factory, with `@Provides` runtime inputs. |
+| [SummaryGraph.kt](feature/summary/components/src/commonMain/kotlin/dev/metrodemo/feature/summary/SummaryGraph.kt) | A graph extension of a graph extension — the promo dialog hangs off the Summary graph. |
+| [DefaultRootComponent.kt](shared/src/commonMain/kotlin/dev/metrodemo/shared/DefaultRootComponent.kt) | The only holder of the graph: `asContribution<X.Factory>()` per screen, plus all the navigation. |
 
-The Metro plugin is applied once, in [demo.kmp.gradle.kts](build-logic/convention/src/main/kotlin/demo.kmp.gradle.kts),
-so every module gets it.
+Supporting pieces: [SubmitApplicationUseCase.kt](core/domain/src/commonMain/kotlin/dev/metrodemo/core/domain/SubmitApplicationUseCase.kt)
+injects a `Set<AnalyticsSink>` whose two contributors live in different modules;
+[AppGraphAccessors.kt](shared/src/commonMain/kotlin/dev/metrodemo/shared/di/AppGraphAccessors.kt)
+is the typed entry point for Android and iOS.
+
+Metro is applied per module via `alias(libs.plugins.metro)` rather than from the convention plugin —
+see finding 2 in [PLAN.md](PLAN.md#7-журнал-находок) for why.
+
+## Screens and parameters
+
+```
+ProductList ──productId──▶ Calculator ──LoanDraft──▶ Summary ──applicationId+draft──▶ Result
+                              ▲                         │ childSlot: promo dialog
+                              └── edited draft back ─────┘   (code + discount back via callback)
+
+Result: [Nuevo préstamo] → replaceAll(ProductList)
+        [Repetir]        → replaceAll(ProductList, Calculator(prefill = draft))
+```
+
+Features never depend on each other: each exposes an `Output` interface and Root decides where to go.
 
 ## Module layout
 
@@ -56,9 +76,10 @@ Dependency rules, deliberately the same as `android-mx`:
 ## Stage status
 
 - **P1 — done.** Module grid, conventions, Metro on every module, `AppGraph` with a working
-  cross-module binding chain, Android app renders it. Feature modules hold their component
-  contracts and screens; implementations land in P3.
-- P2 — repositories, use cases, `@Named` qualifiers, `Set<AnalyticsSink>` multibinding.
-- P3 — Decompose Root, 4 screens, parameter passing, promo `childSlot`, per-screen graph extensions.
+  cross-module binding chain. Android APK and both iOS targets compile.
+- **P2 — done.** Repositories and use cases, two `@Named` storages via a binding container,
+  `Set<AnalyticsSink>` contributed from `:core:data` and `:feature:summary`.
+- **P3 — done.** Decompose Root with the full four-screen flow, every parameter direction,
+  promo `childSlot` with its own nested graph, per-screen graph extensions with `@Provides` inputs.
 - P4 — iOS: framework export, SwiftUI views, typed graph accessors.
 - P5 — the actual measurements: broken-graph diagnostics, test graphs, build times, Kotlin bump.
