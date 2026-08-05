@@ -252,6 +252,57 @@ P1–P3 — Android-only проверяемо; P4 отдельно; P5 — со�
 10. **iOS собирается и линкуется.** `linkDebugFrameworkIosSimulatorArm64` проходит со всеми
     экранными графами — кодогенерация Metro под Kotlin/Native работает, не только под JVM.
 
+### P5
+
+11. **Рантайм-прогон на эмуляторе прошёл целиком, без крашей.** Список продуктов из
+    контрибутированного репозитория → калькулятор с пересчётом через `CalculateTotalUseCase` →
+    промо-диалог из вложенного графа (невалидный код даёт ошибку, `METRO` даёт −20% и сумма
+    пересчитывается 8 423 → 8 312) → возврат «Editar monto» с сохранением суммы и промокода →
+    submit, при котором **оба** `AnalyticsSink` из разных модулей печатают событие → Result →
+    «Repetir» с префиллом. Back-навигация и dismiss диалога по системному «назад» работают.
+12. **Подмена биндингов в тестах — через `replaces`, а не через override модуля.**
+    `@ContributesBinding(AppScope::class, replaces = [FakeProductsRepository::class])` в
+    `commonTest` + свой `@DependencyGraph(AppScope::class)` в тестовом сорсете. Проверяется
+    компилятором: назовёшь в `replaces` класс, который не контрибутится — тестовый сорсет не
+    соберётся. По сравнению с Koin (`startKoin { modules(fakeModule) }`) строже, но громоздче:
+    под каждый набор подмен нужен свой тестовый граф.
+13. **★ Найден баг Metro 1.1.1: незатрансформированный intrinsic падает только в рантайме.**
+    `asContribution<T>()` **не** трансформируется, если его receiver — inline-цепочка,
+    содержащая `createGraphFactory<T>()`:
+    ```kotlin
+    // компилируется без предупреждений, в рантайме:
+    //   UnsupportedOperationException: Implemented by the compiler
+    createGraphFactory<TestGraph.Factory>().create(platform).asContribution<CalculatorGraph.Factory>()
+
+    // работает — граф присвоен в локальную переменную
+    val graph = createGraphFactory<TestGraph.Factory>().create(platform)
+    graph.asContribution<CalculatorGraph.Factory>()
+    ```
+    Проверено оба варианта по отдельности. Иронично для compile-time фреймворка: главная его
+    продажа — «всё ловится на компиляции», а здесь тихо компилируется и взрывается в рантайме.
+    В `main`-сорсете цепочка от обычного property-receiver (`appGraph.asContribution<...>()`)
+    работает нормально.
+14. **Инкрементальная сборка: регенерация графа не стала узким местом — но масштаб не тот.**
+    `:androidApp:assembleDebug` после точечных правок, тёплый кэш:
+
+    | Правка | Время | Задач выполнено | `:shared` пересобран |
+    |---|---|---|---|
+    | ничего | 1s | 12 | нет |
+    | leaf ui-модуль, non-ABI | 2s | 21 | нет |
+    | `core/domain` use case, non-ABI | 2s | 24 | да |
+    | feature component, **ABI** | 1s | 21 | да |
+    | `core/common`, **ABI** | 1s | 30 | да |
+
+    Вывод осторожный: `:shared` (где генерируется `AppGraph`) пересобирается на любой правке ниже
+    feature-уровня — регенерация всего графа сериализуется в один модуль. На 12 модулях и ~50
+    файлах это 1–2 секунды и незаметно; **на наших ~30 модулях и графе в сотни биндингов этот
+    эксперимент нужную цифру предсказать не может.** Чтобы получить настоящее число, нужен порт
+    реального модуля или генератор синтетических биндингов.
+15. **Диагностика ловит и подозрительное, не только ошибки.** Неиспользуемый multibinding в
+    тестовом графе дал предупреждение
+    `[Metro/SuspiciousUnusedMultibinding] ... is unused but has 1 source binding(s). Did you
+    possibly bind them to the wrong type or contribute them to the wrong scope?`
+
 ## 8. Критерии успеха
 
 Metro «прошёл», если: все ★-строки таблицы реализуются без хаков; фичи контрибутят
