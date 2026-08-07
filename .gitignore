@@ -12,3 +12,8 @@ iosApp/build/
 iosApp/Pods/
 xcuserdata/
 *.xcuserstate
+
+# Xcode
+iosApp/**/xcuserdata/
+iosApp/**/*.xcworkspace/xcuserdata/
+DerivedData/
