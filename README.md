@@ -30,7 +30,9 @@ Read these six files in order and you have seen the whole DI story.
 Supporting pieces: [SubmitApplicationUseCase.kt](core/domain/src/commonMain/kotlin/dev/metrodemo/core/domain/SubmitApplicationUseCase.kt)
 injects a `Set<AnalyticsSink>` whose two contributors live in different modules;
 [AppGraphAccessors.kt](shared/src/commonMain/kotlin/dev/metrodemo/shared/di/AppGraphAccessors.kt)
-is the typed entry point for Android and iOS.
+is the typed entry point for Android and iOS, and
+[IosEntry.kt](shared/src/iosMain/kotlin/dev/metrodemo/shared/di/IosEntry.kt) is the single function
+Swift calls — there is no `get<T>()` on the Swift side to mistype.
 
 Metro is applied per module via `alias(libs.plugins.metro)` rather than from the convention plugin —
 see finding 2 in [PLAN.md](PLAN.md#7-журнал-находок) for why.
@@ -69,9 +71,22 @@ Dependency rules, deliberately the same as `android-mx`:
 
 ## Running
 
+Android:
+
 ```bash
 ./gradlew :androidApp:installDebug
 ```
+
+iOS — open `iosApp/iosApp.xcodeproj` and run the `iosApp` scheme. A build phase invokes
+`:shared:embedAndSignAppleFrameworkForXcode`, so the Kotlin framework is built automatically. Or
+headlessly:
+
+```bash
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS Simulator,name=iPhone 16 Pro' build
+```
+
+Both apps drive the *same* components; only the view layer differs — Compose on Android, SwiftUI on
+iOS, exactly as in `android-mx`.
 
 ## Stage status
 
@@ -81,7 +96,7 @@ Dependency rules, deliberately the same as `android-mx`:
   `Set<AnalyticsSink>` contributed from `:core:data` and `:feature:summary`.
 - **P3 — done.** Decompose Root with the full four-screen flow, every parameter direction,
   promo `childSlot` with its own nested graph, per-screen graph extensions with `@Provides` inputs.
+- **P4 — done.** Xcode project plus a SwiftUI layer over the same components; verified end to end
+  on an iPhone 16 Pro simulator. Swift reaches the graph through one function only.
 - **P5 — done.** Test graph with `replaces`, incremental-build measurements, a reproducible Metro
   intrinsic bug, and a green Kotlin 2.4.10 + Metro 1.4.0 build on `experiment/kotlin-2.4`.
-- **P4 — not done.** The iOS framework compiles and links and the typed accessors exist, but there
-  is no Xcode project or SwiftUI layer yet.
