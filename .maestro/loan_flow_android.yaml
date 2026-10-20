@@ -1,0 +1,32 @@
+appId: dev.metrodemo.android
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Elige un producto"
+- assertVisible: "Préstamo rápido"
+- waitForAnimationToEnd
+- takeScreenshot: docs/screenshots/android/01_product_list
+- tapOn: "Préstamo rápido"
+- assertVisible: "Continuar"
+- waitForAnimationToEnd
+- takeScreenshot: docs/screenshots/android/02_calculator
+- tapOn: "Continuar"
+- assertVisible: "Resumen"
+- waitForAnimationToEnd
+- takeScreenshot: docs/screenshots/android/03_summary
+- tapOn: "Agregar código promocional"
+- assertVisible: "Código promocional"
+- inputText: "METRO"
+- takeScreenshot: docs/screenshots/android/04_promo_dialog
+- tapOn: "Aplicar"
+- assertVisible: "Promo: METRO"
+- waitForAnimationToEnd
+- takeScreenshot: docs/screenshots/android/05_summary_with_promo
+- tapOn: "Confirmar"
+- assertVisible: "¡Solicitud enviada!"
+- waitForAnimationToEnd
+- takeScreenshot: docs/screenshots/android/06_result
+- tapOn: "Repetir con los mismos datos"
+- assertVisible: "Continuar"
+- waitForAnimationToEnd
+- takeScreenshot: docs/screenshots/android/07_calculator_prefilled
