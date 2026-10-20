@@ -11,9 +11,8 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provides
 
 /**
- * Test doubles in Metro are swapped with `replaces`, not by overriding a module the way
- * `startKoin { modules(fakeModule) }` does. The replacement is checked at compile time: name a class
- * that is not actually contributed and the test source set stops compiling.
+ * Test doubles are swapped with `replaces`, checked at compile time: name a class that is not
+ * actually contributed and the test source set stops compiling.
  */
 @ContributesBinding(AppScope::class, replaces = [FakeProductsRepository::class])
 @Inject

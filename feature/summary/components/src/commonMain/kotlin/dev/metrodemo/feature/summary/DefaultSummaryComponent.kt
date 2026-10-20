@@ -45,8 +45,8 @@ class DefaultSummaryComponent(
     private val scope = lifecycle.componentScope()
 
     /**
-     * The dialog gets `childContext` — its own context handed to us by `childSlot`, never `this`.
-     * Passing the parent component here is what produced the childSlot key collisions in android-mx.
+     * The dialog gets the `childContext` handed in by `childSlot`, never `this`: sharing the parent
+     * context between children causes key collisions.
      */
     override val promoDialog: Value<ChildSlot<*, PromoDialogComponent>> = childSlot(
         source = slotNavigation,

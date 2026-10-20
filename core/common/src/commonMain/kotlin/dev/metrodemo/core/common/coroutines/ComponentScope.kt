@@ -8,8 +8,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
 /**
- * Metro graphs have no `close()`, unlike Koin scopes: nothing is disposed when a screen goes away.
- * Anything with a lifetime must be tied to the Decompose lifecycle by hand, as here.
+ * Metro graphs have no `close()`: nothing is disposed when a screen goes away, so anything with a
+ * lifetime must be tied to the Decompose lifecycle by hand.
  */
 fun Lifecycle.componentScope(): CoroutineScope {
     val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())

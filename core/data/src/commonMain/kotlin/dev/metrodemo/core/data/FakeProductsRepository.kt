@@ -6,11 +6,6 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.delay
 
-/**
- * `@ContributesBinding` is the multi-module part of the experiment: nothing in `:shared` mentions
- * this class, yet it lands on `AppGraph` as the `ProductsRepository` binding purely through
- * Metro's compile-time aggregation.
- */
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
 @Inject

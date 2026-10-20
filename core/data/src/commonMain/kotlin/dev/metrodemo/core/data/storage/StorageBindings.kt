@@ -8,11 +8,8 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 /**
- * Two implementations of one interface, told apart by `@Named` — the direct equivalent of our
- * `get<LocalStorage>(named(LocalStorageType.DEFAULT))` in android-mx.
- *
- * A `@BindingContainer` is used instead of `@ContributesBinding` because the qualifier belongs to
- * the binding, not to the class.
+ * A `@BindingContainer` is used instead of `@ContributesBinding` because the `@Named` qualifier
+ * belongs to the binding, not to the class.
  */
 @ContributesTo(AppScope::class)
 @BindingContainer

@@ -5,10 +5,6 @@ import dev.metrodemo.core.common.analytics.AnalyticsSink
 import dev.metrodemo.core.data.LoanApplicationRepository
 import dev.zacsweers.metro.Inject
 
-/**
- * Injects the whole `Set<AnalyticsSink>` multibinding. Contributors come from two different Gradle
- * modules and this class knows about neither.
- */
 @Inject
 class SubmitApplicationUseCase(
     private val repository: LoanApplicationRepository,

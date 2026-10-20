@@ -29,11 +29,9 @@ import dev.zacsweers.metro.asContribution
 import kotlinx.serialization.Serializable
 
 /**
- * The only place that holds [AppGraph] and the only place that knows how the features connect.
- *
- * Each child is built by asking the app graph for a screen graph — `asContribution<X.Factory>()`
- * resolves the factory Metro generated onto `AppGraph` from the feature module. Screen inputs and
- * the output callback go in as `@Provides` arguments.
+ * The only holder of [AppGraph]. Each child is built by asking the app graph for a screen graph:
+ * `asContribution<X.Factory>()` resolves the factory Metro generated onto `AppGraph` from the
+ * feature module.
  */
 class DefaultRootComponent(
     componentContext: ComponentContext,

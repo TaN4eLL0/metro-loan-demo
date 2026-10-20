@@ -7,8 +7,8 @@ import dev.metrodemo.shared.RootComponent
 import platform.UIKit.UIDevice
 
 /**
- * The single call Swift makes. Everything Metro-related stays on the Kotlin side: Swift cannot ask
- * the graph for a type, it can only use what is declared here.
+ * The single call Swift makes. Swift cannot ask the graph for a type, it can only use what is
+ * declared here.
  */
 fun createIosRootComponent(): RootComponent {
     val device = UIDevice.currentDevice

@@ -9,10 +9,6 @@ import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.delay
 
-/**
- * Consumes the `@Named("persistent")` storage, so a wrong qualifier here would be a compile error
- * rather than a runtime surprise.
- */
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
 @Inject
